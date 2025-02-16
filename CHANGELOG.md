@@ -78,9 +78,38 @@ This is the first stable release of `react-indexeddb-kit`, a **TypeScript-based 
 ---
 
 ### 📂 **Project Structure**
-
-
----
+```bash
+react-indexeddb-kit/
+    ├── CHANGELOG.md
+    ├── copy.js
+    ├── frontend.txt
+    ├── package.json
+    ├── tsconfig.json
+    ├── webpack.config.js
+    ├── .npmignore
+    └── src/
+        ├── index.ts
+        ├── context/
+        │   └── ReactIndexDBProvider.tsx
+        ├── core/
+        │   ├── index.ts
+        │   ├── react-indexdb-client.ts
+        │   ├── react-indexdb-modal.ts
+        │   ├── types.ts
+        │   ├── db-operations/
+        │   │   ├── create.ts
+        │   │   ├── delete.ts
+        │   │   ├── find-unique.ts
+        │   │   ├── findMany.ts
+        │   │   └── update.ts
+        │   └── validation/
+        │       └── validation.ts
+        ├── errors/
+        │   └── index.ts
+        └── hooks/
+            └── useIndexedDB.ts
+```
+----
 
 ## 🎯 **Future Enhancements (Planned for v1.1.0)**
 - 🔥 **Batch operations** (Bulk insert, update, delete).
