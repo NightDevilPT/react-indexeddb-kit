@@ -5,20 +5,44 @@
 	"main": "dist/index.js",
 	"module": "dist/index.js",
 	"types": "dist/index.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/YourUsername/react-indexeddb.git"
+	},
+	"bugs": {
+		"url": "https://github.com/YourUsername/react-indexeddb/issues"
+	},
+	"homepage": "https://github.com/YourUsername/react-indexeddb#readme",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "webpack && tsc",
 		"prepare": "npm run build"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"README.md"
 	],
 	"keywords": [
 		"react",
 		"indexeddb",
+		"react-hooks",
+		"react-indexeddb",
 		"database",
-		"crud",
 		"storage",
+		"offline-storage",
+		"client-side-db",
+		"indexeddb-wrapper",
+		"local-storage",
+		"react-crud",
+		"web-storage",
+		"javascript-indexeddb",
+		"react-db",
+		"indexeddb-react",
+		"browser-db",
+		"react-persist",
+		"react-offline",
+		"react-cache",
+		"ts-indexeddb",
 		"typescript"
 	],
 	"author": "NightDevilPT",
