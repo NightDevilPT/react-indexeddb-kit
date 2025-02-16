@@ -1,0 +1,923 @@
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\copy.js
+Contents:
+const fs = require('fs');
+const path = require('path');
+
+// Hardcoded directory pah
+const rootDir = 'C:/Users/Pawan/Desktop/npm-packages/react-index-db';
+const outputFile = 'frontend.txt';
+
+// Function to traverse and process files
+function processDirectory(dir) {
+  // Read the contents of the directory
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+  entries.forEach(entry => {
+    const entryPath = path.join(dir, entry.name);
+
+    // Skip "_pycache_" and "env" directories
+    if (entry.isDirectory() && (entry.name === '_pycache_' || entry.name === 'env')) {
+      return; // Skip this directory
+    }
+
+    if (entry.isDirectory()) {
+      // Recursive call for directories
+      processDirectory(entryPath);
+    } else if (entry.isFile()) {
+      // Process each file
+      try {
+        // Read the file content
+        const content = fs.readFileSync(entryPath, 'utf-8');
+
+        // Append the file path and content to output file
+        fs.appendFileSync(outputFile, `File Path: ${entryPath}\n`);
+        fs.appendFileSync(outputFile, 'Contents:\n');
+        fs.appendFileSync(outputFile, content);
+        fs.appendFileSync(outputFile, '\n' + '-'.repeat(50) + '\n\n');
+      } catch (error) {
+        // Log any errors encountered while reading files
+        fs.appendFileSync(outputFile, `Could not read ${entryPath}: ${error}\n`);
+        fs.appendFileSync(outputFile, '-'.repeat(50) + '\n\n');
+      }
+    }
+  });
+}
+
+// Clear output file if it already exists
+fs.writeFileSync(outputFile, '');
+
+// Start processing from the root directory
+processDirectory(rootDir);
+
+console.log(`All file paths and contents have been stored in ${outputFile}.`);
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\frontend.txt
+Contents:
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\copy.js
+Contents:
+const fs = require('fs');
+const path = require('path');
+
+// Hardcoded directory pah
+const rootDir = 'C:/Users/Pawan/Desktop/npm-packages/react-index-db';
+const outputFile = 'frontend.txt';
+
+// Function to traverse and process files
+function processDirectory(dir) {
+  // Read the contents of the directory
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+  entries.forEach(entry => {
+    const entryPath = path.join(dir, entry.name);
+
+    // Skip "_pycache_" and "env" directories
+    if (entry.isDirectory() && (entry.name === '_pycache_' || entry.name === 'env')) {
+      return; // Skip this directory
+    }
+
+    if (entry.isDirectory()) {
+      // Recursive call for directories
+      processDirectory(entryPath);
+    } else if (entry.isFile()) {
+      // Process each file
+      try {
+        // Read the file content
+        const content = fs.readFileSync(entryPath, 'utf-8');
+
+        // Append the file path and content to output file
+        fs.appendFileSync(outputFile, `File Path: ${entryPath}\n`);
+        fs.appendFileSync(outputFile, 'Contents:\n');
+        fs.appendFileSync(outputFile, content);
+        fs.appendFileSync(outputFile, '\n' + '-'.repeat(50) + '\n\n');
+      } catch (error) {
+        // Log any errors encountered while reading files
+        fs.appendFileSync(outputFile, `Could not read ${entryPath}: ${error}\n`);
+        fs.appendFileSync(outputFile, '-'.repeat(50) + '\n\n');
+      }
+    }
+  });
+}
+
+// Clear output file if it already exists
+fs.writeFileSync(outputFile, '');
+
+// Start processing from the root directory
+processDirectory(rootDir);
+
+console.log(`All file paths and contents have been stored in ${outputFile}.`);
+--------------------------------------------------
+
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\package.json
+Contents:
+{
+	"name": "react-indexeddb",
+	"version": "1.0.0",
+	"description": "A TypeScript-based React IndexedDB wrapper with CRUD operations.",
+	"main": "dist/index.js",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "webpack && tsc",
+		"prepare": "npm run build"
+	},
+	"files": [
+		"dist"
+	],
+	"keywords": [
+		"react",
+		"indexeddb",
+		"database",
+		"crud",
+		"storage",
+		"typescript"
+	],
+	"author": "NightDevilPT",
+	"license": "MIT",
+	"peerDependencies": {
+		"react": "^18.0.0 || ^19.0.0"
+	},
+	"devDependencies": {
+		"@types/react": "^19.0.8",
+		"typescript": "^5.7.3",
+		"ts-loader": "^9.5.2",
+		"webpack": "^5.98.0",
+		"webpack-cli": "^6.0.1",
+		"webpack-node-externals": "^3.0.0"
+	}
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\context\ReactIndexDBProvider.tsx
+Contents:
+"use client"
+
+// src/context/ReactIndexDBProvider.tsx
+import {
+	createContext,
+	useContext,
+	ReactNode,
+	useState,
+	useEffect,
+} from "react";
+import { ReactIndexDBClientProps, Schema } from "../core/types";
+import { ReactIndexDBClient } from "../core/react-indexdb-client";
+
+// Define the context type
+interface ReactIndexDBContextType {
+	client: ReactIndexDBClientProps | null;
+	error: Error | null;
+}
+
+// Create the context
+const ReactIndexDBContext = createContext<ReactIndexDBContextType | null>(null);
+
+// Provider component
+export function ReactIndexDBProvider({
+	children,
+	dbName,
+	schema,
+}: {
+	children: ReactNode;
+	dbName: string;
+	schema: Schema;
+}) {
+	const [client, setClient] = useState<ReactIndexDBClient | null>(null);
+	const [error, setError] = useState<Error | null>(null);
+
+	useEffect(() => {
+		const initDB = async () => {
+			try {
+				const db = new ReactIndexDBClient(dbName, schema);
+				await db.connect();
+				setClient(db);
+			} catch (err) {
+				setError(
+					err instanceof Error
+						? err
+						: new Error("Failed to initialize DB")
+				);
+			}
+		};
+
+		initDB();
+	}, [dbName, schema]);
+
+	return (
+		<ReactIndexDBContext.Provider value={{ client, error }}>
+			{children}
+		</ReactIndexDBContext.Provider>
+	);
+}
+
+// Custom hook to use the ReactIndexDB context
+export function useReactIndexDB() {
+	const context = useContext(ReactIndexDBContext);
+	if (!context) {
+		throw new Error(
+			"useReactIndexDB must be used within a ReactIndexDBProvider"
+		);
+	}
+	return context;
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\db-operations\create.ts
+Contents:
+import { DatabaseError } from "../../errors";
+import { ModelDefinition } from "../types";
+
+// Create record
+export function create(db: IDBDatabase, modelDef: ModelDefinition, data: Record<string, any>) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(modelDef.name, "readwrite");
+        const store = transaction.objectStore(modelDef.name);
+        const request = store.add(data);
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(new DatabaseError("Failed to create record"));
+    });
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\db-operations\delete.ts
+Contents:
+import { DatabaseError } from "../../errors";
+import { ModelDefinition } from "../types";
+
+// Delete record
+export function deleteRecord(
+	db: IDBDatabase,
+	modelDef: ModelDefinition,
+	id: any
+) {
+	return new Promise((resolve, reject) => {
+		const transaction = db.transaction(modelDef.name, "readwrite");
+		const store = transaction.objectStore(modelDef.name);
+		const request = store.delete(id);
+
+		request.onsuccess = () =>
+			resolve({ message: "Successfully deleted", data: request.result });
+		request.onerror = () =>
+			reject(new DatabaseError("Failed to delete record"));
+	});
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\db-operations\find-unique.ts
+Contents:
+import { DatabaseError } from "../../errors";
+import { ModelDefinition, QueryOptions } from "../types";
+
+// Find a single record by ID with optional selection
+export function findUnique(
+	db: IDBDatabase,
+	modelDef: ModelDefinition,
+	id: any,
+	options?: QueryOptions
+) {
+	return new Promise((resolve, reject) => {
+		const transaction = db.transaction(modelDef.name, "readonly");
+		const store = transaction.objectStore(modelDef.name);
+		const request = store.get(id);
+
+		request.onsuccess = () => {
+			let result = request.result || null;
+
+			// Apply selection based on { fieldName: true } format
+			if (result && options?.select) {
+				result = Object.fromEntries(
+					Object.entries(result).filter(
+						([key]) => options.select![key]
+					)
+				);
+			}
+
+			resolve(result);
+		};
+
+		request.onerror = () =>
+			reject(new DatabaseError("Failed to fetch record"));
+	});
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\db-operations\findMany.ts
+Contents:
+import { DatabaseError } from "../../errors";
+import { ModelDefinition, QueryOptions } from "../types";
+
+// Find multiple records with optional filtering and selection
+export function findMany(
+    db: IDBDatabase,
+    modelDef: ModelDefinition,
+    options?: QueryOptions
+) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(modelDef.name, "readonly");
+        const store = transaction.objectStore(modelDef.name);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            let results = request.result;
+
+            // Apply filtering
+            if (options?.where) {
+                results = results.filter((item: any) =>
+                    Object.entries(options.where!).every(([key, value]) => item[key] === value)
+                );
+            }
+
+            // Apply sorting
+            if (options?.orderBy) {
+                const { field, direction } = options.orderBy;
+                results.sort(
+                    (a: any, b: any) =>
+                        (a[field] < b[field] ? -1 : 1) * (direction === "asc" ? 1 : -1)
+                );
+            }
+
+            // Apply pagination
+            if (options?.skip !== undefined) {
+                results = results.slice(options.skip);
+            }
+            if (options?.limit !== undefined) {
+                results = results.slice(0, options.limit);
+            }
+
+            // Apply selection based on { fieldName: true } format
+            if (options?.select) {
+                results = results.map((item: any) =>
+                    Object.fromEntries(
+                        Object.entries(item).filter(([key]) => options.select![key])
+                    )
+                );
+            }
+
+            resolve(results);
+        };
+
+        request.onerror = () => reject(new DatabaseError("Failed to fetch records"));
+    });
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\db-operations\update.ts
+Contents:
+import { DatabaseError } from "../../errors";
+import { ModelDefinition } from "../types";
+
+// Update record
+export function update(
+	db: IDBDatabase,
+	modelDef: ModelDefinition,
+	id: any,
+	data: Record<string, any>
+) {
+	return new Promise((resolve, reject) => {
+		const transaction = db.transaction(modelDef.name, "readwrite");
+		const store = transaction.objectStore(modelDef.name);
+		const request = store.put({ ...data, id });
+
+		request.onsuccess = () => resolve(request.result);
+		request.onerror = () =>
+			reject(new DatabaseError("Failed to update record"));
+	});
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\index.ts
+Contents:
+// Export core types
+export type {
+    Schema,
+    ModelDefinition,
+    FieldDefinition,
+    QueryOptions,
+    ReactIndexDBClientProps,
+    ReactIndexDBModelProps,
+} from "./types";
+
+// Export main IndexedDB client
+export { ReactIndexDBClient } from "./react-indexdb-client";
+export { ReactIndexDBModel } from "./react-indexdb-modal";
+
+// Export validation logic
+export { validateData } from "./validation/validation";
+
+// Export IndexedDB CRUD operations
+export { create } from "./db-operations/create";
+export { update } from "./db-operations/update";
+export { deleteRecord } from "./db-operations/delete";
+export { findMany } from "./db-operations/findMany";
+export { findUnique } from "./db-operations/find-unique";
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\react-indexdb-client.ts
+Contents:
+import { DatabaseError } from "../errors";
+import { ReactIndexDBModel } from "./react-indexdb-modal";
+import { Schema, ReactIndexDBModelProps } from "./types";
+
+export class ReactIndexDBClient {
+    private dbName: string;
+    private version: number;
+    private schema: Schema;
+    private db: IDBDatabase | null = null;
+    private models: Map<string, ReactIndexDBModelProps> = new Map();
+
+    constructor(dbName: string, schema: Schema, version: number = 1) {
+        this.dbName = dbName;
+        this.schema = schema;
+        this.version = version;
+    }
+
+    /**
+     * Ensure database is available before performing any operations.
+     */
+    async ensureDatabase(): Promise<void> {
+        if (this.db) return; // If DB is already available, return
+        await this.connect();
+    }
+
+    async connect(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.version);
+
+            request.onupgradeneeded = (event) => {
+                const db = (event.target as IDBOpenDBRequest).result;
+                this.createStores(db);
+            };
+
+            request.onsuccess = () => {
+                this.db = request.result;
+                this.initializeModels();
+                resolve();
+            };
+
+            request.onerror = () => {
+                reject(new DatabaseError("Failed to connect to IndexedDB"));
+            };
+        });
+    }
+
+    private createStores(db: IDBDatabase) {
+        this.schema.models.forEach((model) => {
+            if (!db.objectStoreNames.contains(model.name)) {
+                const store = db.createObjectStore(model.name, {
+                    keyPath: "id",
+                    autoIncrement: true,
+                });
+
+                // Create indexes for unique fields
+                Object.entries(model.fields).forEach(([fieldName, definition]) => {
+                    if (definition.unique) {
+                        store.createIndex(`${fieldName}_unique`, fieldName, { unique: true });
+                    }
+                });
+            }
+        });
+    }
+
+    private initializeModels() {
+        if (!this.db) throw new DatabaseError("Database not initialized");
+
+        this.schema.models.forEach((modelDef) => {
+            this.models.set(modelDef.name, new ReactIndexDBModel(this, modelDef)); // ✅ Pass `this` instead of `this.db`
+        });
+    }
+
+    getDatabase(): IDBDatabase | null {
+        return this.db;
+    }
+
+    getSchema(): Schema {
+        return this.schema;
+    }
+
+    model(name: string): ReactIndexDBModelProps {
+        if (!this.db) throw new DatabaseError("Database not initialized");
+        
+        const model = this.models.get(name);
+        if (!model) throw new DatabaseError(`Model ${name} not found`);
+        return model;
+    }
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\react-indexdb-modal.ts
+Contents:
+import { DatabaseError, ValidationError, ReactIndexDBError } from "../errors";
+import { create } from "./db-operations/create";
+import { deleteRecord } from "./db-operations/delete";
+import { findUnique } from "./db-operations/find-unique";
+import { findMany } from "./db-operations/findMany";
+import { update } from "./db-operations/update";
+import { ModelDefinition, QueryOptions } from "./types";
+import { validateData } from "./validation/validation";
+import { ReactIndexDBClient } from "./react-indexdb-client";
+
+export class ReactIndexDBModel {
+    private dbClient: ReactIndexDBClient;
+    private modelDef: ModelDefinition;
+
+    constructor(dbClient: ReactIndexDBClient, modelDef: ModelDefinition) {
+        this.dbClient = dbClient;
+        this.modelDef = modelDef;
+    }
+
+    /**
+     * Ensure the database is connected before performing any operation.
+     */
+    private async ensureDatabase(): Promise<IDBDatabase> {
+        await this.dbClient.ensureDatabase(); // ✅ Ensures the DB is connected
+        const db = this.dbClient.getDatabase();
+        if (!db) {
+            throw new DatabaseError("Database is not initialized");
+        }
+        return db;
+    }
+
+    /**
+     * Create a new record in IndexedDB after validating the data.
+     * @param data - The record data to insert.
+     * @returns The inserted record ID.
+     */
+    async create(data: Record<string, any>): Promise<any> {
+        try {
+            const db = await this.ensureDatabase(); // ✅ Ensures DB before proceeding
+
+            // Validate data before inserting
+            const validatedData = validateData(data, this.modelDef, this.dbClient.getSchema());
+            return await create(db, this.modelDef, validatedData);
+        } catch (error: unknown) {
+            throw this.handleError(error);
+        }
+    }
+
+    /**
+     * Update an existing record after validating the data.
+     * @param id - The ID of the record to update.
+     * @param data - The updated record data.
+     * @returns The updated record ID.
+     */
+    async update(id: any, data: Record<string, any>): Promise<any> {
+        try {
+            const db = await this.ensureDatabase(); // ✅ Ensures DB before proceeding
+
+            // Validate data before updating
+            const validatedData = validateData(data, this.modelDef, this.dbClient.getSchema());
+            return await update(db, this.modelDef, id, validatedData);
+        } catch (error: unknown) {
+            throw this.handleError(error);
+        }
+    }
+
+    /**
+     * Delete a record by ID.
+     * @param id - The ID of the record to delete.
+     * @returns A confirmation message.
+     */
+    async delete(id: any): Promise<any> {
+        try {
+            const db = await this.ensureDatabase(); // ✅ Ensures DB before proceeding
+            return await deleteRecord(db, this.modelDef, id);
+        } catch (error: unknown) {
+            throw this.handleError(error);
+        }
+    }
+
+    /**
+     * Retrieve multiple records with optional query filters.
+     * @param options - Query options such as filters, pagination, sorting, etc.
+     * @returns An array of matching records.
+     */
+    async findMany(options?: QueryOptions): Promise<any> {
+        try {
+            const db = await this.ensureDatabase(); // ✅ Ensures DB before proceeding
+            return await findMany(db, this.modelDef, options);
+        } catch (error: unknown) {
+            throw this.handleError(error);
+        }
+    }
+
+    /**
+     * Find a single record by ID.
+     * @param id - The ID of the record to retrieve.
+     * @param options - Query options for selecting specific fields.
+     * @returns The found record or null.
+     */
+    async findUnique(id: any, options?: QueryOptions): Promise<any | null> {
+        try {
+            const db = await this.ensureDatabase(); // ✅ Ensures DB before proceeding
+            return await findUnique(db, this.modelDef, id, options);
+        } catch (error: unknown) {
+            throw this.handleError(error);
+        }
+    }
+
+    /**
+     * Handles unknown errors and ensures they are transformed into a proper `ReactIndexDBError`.
+     * @param error - The caught error.
+     * @returns {ReactIndexDBError} - A formatted error.
+     */
+    private handleError(error: unknown): ReactIndexDBError {
+        if (error instanceof ValidationError || error instanceof DatabaseError) {
+            return error; // Already a known error, rethrow it
+        }
+        return new DatabaseError(error instanceof Error ? error.message : "An unknown error occurred");
+    }
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\types.ts
+Contents:
+// src/core/types.ts
+
+// Field types supported by the ORM
+export type FieldType =
+	| "string"
+	| "number"
+	| "boolean"
+	| "date"
+	| "object"
+	| "array";
+
+// Field definition for a model
+export interface FieldDefinition {
+	type: FieldType;
+	required?: boolean;
+	unique?: boolean;
+	default?: any;
+	references?: {
+		model: string;
+		field: string;
+	};
+}
+
+// Model definition
+export interface ModelDefinition {
+	name: string;
+	fields: Record<string, FieldDefinition>;
+}
+
+// Schema definition (collection of models)
+export interface Schema {
+	models: ModelDefinition[];
+}
+
+// Query options for findMany and findUnique
+export interface QueryOptions {
+    where?: Record<string, any>;
+    include?: string[];
+    orderBy?: { field: string; direction: "asc" | "desc" };
+    skip?: number;
+    limit?: number;
+    select?: Record<string, true>; // Updated select to be an object with true values
+}
+
+// Type for the ReactIndexDB client
+export interface ReactIndexDBClientProps {
+	connect: () => Promise<void>;
+	model: (name: string) => ReactIndexDBModelProps;
+}
+
+// Type for the ReactIndexDB model
+export interface ReactIndexDBModelProps {
+	create: (data: Record<string, any>) => Promise<any>;
+	findMany: (options?: QueryOptions) => Promise<any[]>;
+	findUnique: (id: any, options?: QueryOptions) => Promise<any>;
+	update: (id: any, data: Record<string, any>) => Promise<any>;
+	delete: (id: any) => Promise<void>;
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\core\validation\validation.ts
+Contents:
+import { ValidationError } from "../../errors";
+import { ModelDefinition, Schema } from "../types";
+
+export function validateData(
+    data: Record<string, any>,
+    modelDef: ModelDefinition,
+    schema: Schema
+): Record<string, any> {
+    const validatedData: Record<string, any> = {};
+
+    Object.entries(modelDef.fields).forEach(([fieldName, definition]) => {
+        const fieldValue = data[fieldName];
+
+        // Check if the field is required and the value is undefined
+        if (definition.required && fieldValue === undefined) {
+            throw new ValidationError(`Field '${fieldName}' is required`);
+        }
+
+        // If the field has a default value and is missing, set the default
+        if (fieldValue === undefined && definition.default !== undefined) {
+            validatedData[fieldName] = definition.default;
+            return;
+        }
+
+        // Complex type checks for 'array' and 'object'
+        if (fieldValue !== undefined) {
+            if (definition.type === "array" && !Array.isArray(fieldValue)) {
+                throw new ValidationError(`Field '${fieldName}' must be an array`);
+            }
+
+            if (definition.type === "object" && typeof fieldValue !== "object") {
+                throw new ValidationError(`Field '${fieldName}' must be an object`);
+            }
+
+            // Check for 'date' type
+            if (definition.type === "date" && !(fieldValue instanceof Date)) {
+                throw new ValidationError(`Field '${fieldName}' must be a Date`);
+            }
+
+            // Check basic types
+            if (
+                definition.type !== "array" &&
+                definition.type !== "object" &&
+                definition.type !== "date" &&
+                typeof fieldValue !== definition.type
+            ) {
+                throw new ValidationError(`Field '${fieldName}' must be of type ${definition.type}`);
+            }
+
+            // If the field passes validation, include it in validated data
+            validatedData[fieldName] = fieldValue;
+        }
+    });
+
+    // Prevent extra fields that are not part of the model
+    Object.keys(data).forEach((key) => {
+        if (!modelDef.fields[key]) {
+            throw new ValidationError(`Field '${key}' is not defined in the schema`);
+        }
+    });
+
+    return validatedData;
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\errors\index.ts
+Contents:
+// src/errors/index.ts
+
+/**
+ * Custom error for database-related issues.
+ */
+export class DatabaseError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = "DatabaseError";
+		Object.setPrototypeOf(this, DatabaseError.prototype);
+	}
+}
+
+/**
+ * Custom error for validation issues.
+ */
+export class ValidationError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = "ValidationError";
+		Object.setPrototypeOf(this, ValidationError.prototype);
+	}
+}
+
+/**
+ * Type to represent different error categories.
+ */
+export type ReactIndexDBError = DatabaseError | ValidationError;
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\hooks\useIndexedDB.ts
+Contents:
+// src/hooks/useIndexedDB.ts
+import { ReactIndexDBClient, ReactIndexDBClientProps, Schema } from "../core";
+import { useState, useEffect } from "react";
+
+export const useIndexedDB = (dbName: string, schema: Schema) => {
+	const [client, setClient] = useState<ReactIndexDBClientProps | null>(null);
+
+	useEffect(() => {
+		const db = new ReactIndexDBClient(dbName, schema);
+		db.connect().then(() => setClient(db));
+	}, [dbName, schema]);
+
+	return client;
+};
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\src\index.ts
+Contents:
+// Export types for better TypeScript support
+export type {
+    Schema,
+    ModelDefinition,
+    FieldDefinition,
+    QueryOptions,
+    ReactIndexDBClientProps,
+    ReactIndexDBModelProps,
+} from "./core/types";
+
+// Export hooks
+export { useIndexedDB } from "./hooks/useIndexedDB";
+
+// Export validation function
+export { validateData } from "./core/validation/validation";
+
+// Export error handling
+export { DatabaseError, ValidationError } from "./errors";
+
+// Export core functionalities
+export { ReactIndexDBClient, ReactIndexDBModel } from "./core";
+
+// Export IndexedDB operations (CRUD)
+export { create, update, deleteRecord, findMany, findUnique } from "./core";
+
+// Export provider and hook for React context
+export { ReactIndexDBProvider, useReactIndexDB } from "./context/ReactIndexDBProvider";
+
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\tsconfig.json
+Contents:
+{
+	"compilerOptions": {
+	  "target": "es6", 
+	  "module": "CommonJS",
+	  "lib": ["dom", "es6", "es2017"],
+	  "declaration": true,
+	  "declarationDir": "./dist",
+	  "outDir": "./dist",
+	  "jsx": "react-jsx",
+	  "moduleResolution": "node",
+	  "esModuleInterop": true,
+	  "skipLibCheck": true,
+	  "forceConsistentCasingInFileNames": true,
+	  "strict": true,
+	  "allowJs": true
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist"]
+}
+
+--------------------------------------------------
+
+File Path: C:\Users\Pawan\Desktop\npm-packages\react-index-db\webpack.config.js
+Contents:
+const path = require("path");
+const nodeExternals = require("webpack-node-externals");
+
+module.exports = {
+  mode: "production",
+  entry: "./src/index.ts",
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "index.js",
+    library: {
+      name: "react-indexdb",
+      type: "umd"
+    },
+    globalObject: "typeof self !== 'undefined' ? self : this",
+    clean: true // Clean dist folder before build
+  },
+  externals: [
+    nodeExternals(),
+    { react: "react", "react-dom": "react-dom" }
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: "ts-loader"
+      }
+    ]
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"]
+  }
+};
+
+--------------------------------------------------
+

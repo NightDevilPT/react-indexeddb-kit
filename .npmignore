@@ -1,0 +1,31 @@
+# Ignore test and dev files
+__tests__/
+test/
+coverage/
+examples/
+scripts/
+
+# Ignore config and local dev files
+.git
+.gitignore
+.eslint*
+.prettier*
+.vscode/
+.idea/
+*.iml
+
+# Ignore build tools & editor settings
+node_modules/
+tsconfig.json
+jest.config.js
+babel.config.js
+webpack.config.js
+
+# Ignore TypeScript source files
+src/**/*.ts
+src/**/*.tsx
+src/**/*.js
+src/**/*.jsx
+
+# Ignore README in other languages if not needed
+CHANGELOG.md

@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+dist/
+coverage/
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor Config
+.vscode/
+.idea/
+*.iml
+
+# TypeScript
+*.tsbuildinfo
+*.d.ts.map
+
+# Build & Generated files
+*.lock
+dist/
+build/
+.eslintcache
+.next/
